@@ -10,7 +10,7 @@ function [route,numExpanded] = AStarGrid (input_map, start_coords, dest_coords)
 %    shortest route from start to dest or an empty array if there is no
 %    route. This is a single dimensional vector
 %    numExpanded: Remember to also return the total number of nodes
-%    expanded during your search
+%    expanded during your search. Do not count the goal node as an expanded node. 
 
 % set up color map for display
 % 1 - white - clear cell
@@ -25,7 +25,8 @@ cmap = [1 1 1; ...
     1 0 0; ...
     0 0 1; ...
     0 1 0; ...
-    1 1 0];
+    1 1 0; ...
+    0.5 0.5 0.5];
 
 colormap(cmap);
 
@@ -62,7 +63,7 @@ yd = dest_coords(2);
 % Evaluate Heuristic function, H, for each grid cell
 % Manhattan distance
 H = abs(X - xd) + abs(Y - yd);
-
+H = H';
 % Initialize cost arrays
 f = Inf(nrows,ncols);
 g = Inf(nrows,ncols);
@@ -103,13 +104,39 @@ while true
     
     % Compute row, column coordinates of current node
     [i, j] = ind2sub(size(f), current);
+    numExpanded = numExpanded + 1;
     
     % *********************************************************************
     % ALL YOUR CODE BETWEEN THESE LINES OF STARS
     % Visit all of the neighbors around the current node and update the
     % entries in the map, f, g and parent arrays
     %
+    next = [i-1, j; i+1, j; i, j-1; i, j+1];
     
+    for k = 1:4
+        row = next(k,1); column = next(k,2);
+        if row < size(input_map,1) + 1 && row > 0 && column < size(input_map,2) + 1 && column > 0
+            index = sub2ind(size(input_map),row, column);
+        
+            if map(index) == 4 && g(index) > g(current) +1
+                g(index) = g(current) + 1;
+                f(index) = g(index) + H(index);
+                parent(index) = current;
+            end
+            if map(index) == 1 && g(index) > g(current) + 1
+                g(index) = g(current) + 1;
+                f(index) = g(index) + H(index);
+                parent(index) = current;
+                map(index) = 4;
+            end
+            
+            if map(index) == 6 && g(index) > g(current) + 1
+                g(index) = g(current) + 1;
+                f(index) = g(index) + H(index);
+                parent(index) = current;
+            
+        end
+    end
     
     
     
@@ -124,8 +151,7 @@ if (isinf(f(dest_node)))
     route = [];
 else
     route = [dest_node];
-    
-    while (parent(route(1)) ~= 0)
+   while (parent(route(1)) ~= 0)
         route = [parent(route(1)), route];
     end
 

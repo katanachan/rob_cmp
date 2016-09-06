@@ -10,7 +10,7 @@ function [route,numExpanded] = DijkstraGrid (input_map, start_coords, dest_coord
 %    shortest route from start to dest or an empty array if there is no
 %    route. This is a single dimensional vector
 %    numExpanded: Remember to also return the total number of nodes
-%    expanded during your search
+%    expanded during your search. Do not count the goal node as an expanded node.
 
 
 % set up color map for display
@@ -26,7 +26,8 @@ cmap = [1 1 1; ...
         1 0 0; ...
         0 0 1; ...
         0 1 0; ...
-        1 1 0];
+        1 1 0; ...
+	0.5 0.5 0.5];
 
 colormap(cmap);
 
@@ -90,7 +91,7 @@ while true
     % Compute row, column coordinates of current node
     [i, j] = ind2sub(size(distanceFromStart), current);
     numExpanded = numExpanded + 1;
-    disp(numExpanded);
+    
    % ********************************************************************* 
     % YOUR CODE BETWEEN THESE LINES OF STARS
     
@@ -98,29 +99,31 @@ while true
     % and parent tables appropriately.
     next = [i-1, j; i+1, j;i, j-1;i j+1];
     
-    for i=1:4
-        row = next(i,1); column = next(i,2);
-        if row > 1 && row < size(input_map,1) && column > 1 && column < size(input_map,2)
+    for k=1:4
+        row = next(k,1); column = next(k,2);
+        if row > 0 && row < size(input_map,1)+1 && column > 0 && column < size(input_map,2)+1
 
             index = sub2ind(size(input_map), row, column);
-
+            
+            
+            if map(index) == 4 && distanceFromStart(index) > min_dist + 1
+                distanceFromStart(index) = min_dist + 1;
+                parent(index) = current;
+            end
             if map(index) == 1 && distanceFromStart(index) > min_dist + 1                 
                 map(index) = 4;
                 distanceFromStart(index) = min_dist +1;
                 parent(index) = current; 
             end
-            if map(index) == 4
-                distanceFromStart(index) = min_dist + 1;
-                parent(index) = current;
-            end
-            if map(index) == 6
+            if map(index) == 6 && distanceFromStart(index) > min_dist + 1
                 distanceFromStart(index) = min_dist + 1;
                 parent(index) = current;
             end
                 
         end         
     end
-            
+    
+    
     
     
     %*********************************************************************
@@ -148,3 +151,4 @@ else
 end
 
 end
+
