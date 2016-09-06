@@ -89,14 +89,38 @@ while true
     
     % Compute row, column coordinates of current node
     [i, j] = ind2sub(size(distanceFromStart), current);
-    
+    numExpanded = numExpanded + 1;
+    disp(numExpanded);
    % ********************************************************************* 
     % YOUR CODE BETWEEN THESE LINES OF STARS
     
     % Visit each neighbor of the current node and update the map, distances
     % and parent tables appropriately.
+    next = [i-1, j; i+1, j;i, j-1;i j+1];
     
-    
+    for i=1:4
+        row = next(i,1); column = next(i,2);
+        if row > 1 && row < size(input_map,1) && column > 1 && column < size(input_map,2)
+
+            index = sub2ind(size(input_map), row, column);
+
+            if map(index) == 1 && distanceFromStart(index) > min_dist + 1                 
+                map(index) = 4;
+                distanceFromStart(index) = min_dist +1;
+                parent(index) = current; 
+            end
+            if map(index) == 4
+                distanceFromStart(index) = min_dist + 1;
+                parent(index) = current;
+            end
+            if map(index) == 6
+                distanceFromStart(index) = min_dist + 1;
+                parent(index) = current;
+            end
+                
+        end         
+    end
+            
     
     
     %*********************************************************************
